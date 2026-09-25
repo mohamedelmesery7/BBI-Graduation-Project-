@@ -1,0 +1,16 @@
+streamlit
+pandas
+openai>=1.0.0
+python-dotenv
+azure-search-documents
+azure-storage-blob
+azure-core
+
+
+
+
+
+
+
+
+

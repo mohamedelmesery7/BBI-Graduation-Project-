@@ -163,27 +163,26 @@ if user_input:
         
         # 1. Retrieve relevant text chunks and real file names via Azure AI Search
         retrieved_context = retrieve_context(
-            user_input, search_client, top_k=3
+            user_input, search_client, top_k=8
         )
 
         validation_schema = load_json_schema_from_blob(validation_schema_blob)
 
         # 2. Build system instructions dynamically including the retrieved context
-        system_instruction = f"""You are a procurement assistant. Answer questions using only the provided procurement policy, vendor onboarding guide, purchase request guidelines, supplier code of conduct, vendor documents, and purchase request dataset. 
+        system_instruction = f"""You are a procurement assistant. Answer questions using only the provided procurement policy, vendor onboarding guide, purchase request guidelines, supplier code of conduct, vendor documents, and purchase request dataset. Do not invent, assume, or add approval requirements that are not supported by the provided context.
 
-CRITICAL RULE FOR VALIDATION TASKS: If the user asks to validate a purchase request or perform any validation task, you MUST use the provided tools (such as validate_purchase_request_from_csv) to query the dataset 
-and compare output with the provided information especially in Purchase Request Guidelines. 
-Do not skip using the tool for validation tasks.
-For validation responses, use the tool result as authoritative. Do not infer, change, or replace pr_id, is_complete, required_approval_level, missing_fields, policy_violations, recommended_action, source, or tool_used. Explain the result only; do not recalculate the validation.
-If information is missing, say what is missing and recommend the next procurement action. Do not approve requests by yourself. 
+    If information is missing, state exactly what is missing and recommend the next procurement action. Do not approve requests by yourself.
 
-At the very end of your response, add one single section titled "Sources" containing a collected list of the source document names or data sources used. Do not write "Source:" or cite a document after individual points, sentences, or list items. Keep all source names together only in that final section.
+    CRITICAL RULE FOR VALIDATION TASKS:
+    If the user asks to validate a purchase request or perform any validation task, you MUST call the provided validation tool, such as validate_purchase_request_from_csv, to query the purchase request dataset. Compare the tool result with the relevant purchase request guidelines, but treat the tool result as authoritative for the validation outcome.
 
+    For validation responses, do not infer, recalculate, change, or replace any of these tool-result fields: pr_id, is_complete, required_approval_level, missing_fields, policy_violations, recommended_action, source, or tool_used. Explain the result only and recommend the next procurement action when required.
 
-
-Retrieved Enterprise Context:
-{retrieved_context}
-"""
+    SOURCE RULE:
+    At the very end of every response, add exactly one breif section titled "Sources". Keep all source references together only in the final "Sources" section.sources only include the file names of the retrieved documents that were used to answer the question. 
+    Retrieved Enterprise Context:
+    {retrieved_context}
+    """
 
         # Prepare messages payload for LLM
         messages_payload = [{"role": "system", "content": system_instruction}] + st.session_state.messages

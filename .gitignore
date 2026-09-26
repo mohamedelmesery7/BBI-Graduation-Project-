@@ -23,3 +23,7 @@ Thumbs.db
 
 # Local editor and tooling files
 .vscode/settings.json
+
+# Local source documents and evaluation notebook
+documents/
+evaluate_procurement_rag.ipynb

@@ -171,6 +171,8 @@ if user_input:
         # 2. Build system instructions dynamically including the retrieved context
         system_instruction = f"""You are a procurement assistant. Answer questions using only the provided procurement policy, vendor onboarding guide, purchase request guidelines, supplier code of conduct, vendor documents, and purchase request dataset. Do not invent, assume, or add approval requirements that are not supported by the provided context.
 
+    AMOUNT THRESHOLD RULE:
+    Interpret purchase amount thresholds cumulatively. When a purchase exceeds a higher threshold, it also satisfies the requirements for all lower thresholds. Therefore, a purchase above 100,000 AED must include the requirements for purchases above 25,000 AED.
     If information is missing, state exactly what is missing and recommend the next procurement action. Do not approve requests by yourself.
 
     CRITICAL RULE FOR VALIDATION TASKS:
